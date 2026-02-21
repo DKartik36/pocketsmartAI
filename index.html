@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PocketSmart AI – Your Smart Budget Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+
+    <!-- Animated Background -->
+    <div class="bg-layer">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+        <div class="grid-pattern"></div>
+    </div>
+
+    <!-- Sidebar Nav -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <div class="logo-icon">₿</div>
+            <span>PocketSmart</span>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="nav-btn active" data-tab="chat" onclick="switchTab('chat', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                </svg>
+                <span>AI Chat</span>
+            </button>
+            <button class="nav-btn" data-tab="budget" onclick="switchTab('budget', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <path d="M12 8v4l3 3" />
+                </svg>
+                <span>Budget Analyzer</span>
+            </button>
+            <button class="nav-btn" data-tab="recommend" onclick="switchTab('recommend', this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon
+                        points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                </svg>
+                <span>Recommendations</span>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="ai-badge">
+                <span class="pulse-dot"></span>
+                Claude AI Powered
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <h1 class="page-title" id="pageTitle">AI Financial Assistant</h1>
+                <p class="page-sub" id="pageSub">Ask anything about your budget & finances</p>
+            </div>
+            <div class="header-right">
+                <div class="status-pill">
+                    <span class="status-dot"></span>
+                    Online
+                </div>
+            </div>
+        </header>
+
+        <!-- ============ TAB: CHAT ============ -->
+        <section class="tab-panel active" id="tab-chat">
+            <div class="chat-container">
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot-message animate-in">
+                        <div class="msg-avatar bot-avatar">PS</div>
+                        <div class="msg-bubble">
+                            <p>👋 Hi! I'm <strong>PocketSmart AI</strong>, your personal finance buddy.</p>
+                            <p>I can help you with:</p>
+                            <div class="quick-chips">
+                                <button class="chip" onclick="sendQuick('How do I create a budget?')">📊 Create a
+                                    budget</button>
+                                <button class="chip" onclick="sendQuick('How can I save more money?')">💰 Save more
+                                    money</button>
+                                <button class="chip" onclick="sendQuick('Best investment options for beginners?')">📈
+                                    Investments</button>
+                                <button class="chip" onclick="sendQuick('Help me cut my expenses')">✂️ Cut
+                                    expenses</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-input-area">
+                    <div class="input-wrapper">
+                        <textarea id="chatInput"
+                            placeholder="Ask about budgeting, savings, or get product recommendations..." rows="1"
+                            onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+                        <button class="send-btn" onclick="sendMessage()" id="sendBtn">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                <line x1="22" y1="2" x2="11" y2="13" />
+                                <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                            </svg>
+                        </button>
+                    </div>
+                    <p class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: BUDGET ANALYZER ============ -->
+        <section class="tab-panel" id="tab-budget">
+            <div class="budget-grid">
+                <div class="card" id="budgetForm">
+                    <div class="card-header">
+                        <h2>Monthly Budget Planner</h2>
+                        <p>Enter your income & expenses to get AI insights</p>
+                    </div>
+                    <div class="form-group">
+                        <label>Monthly Income (₹)</label>
+                        <input type="number" id="incomeInput" placeholder="e.g. 50000" class="form-input">
+                    </div>
+                    <div class="expenses-section">
+                        <div class="expenses-header">
+                            <label>Expenses</label>
+                            <button class="add-expense-btn" onclick="addExpense()">+ Add</button>
+                        </div>
+                        <div id="expensesList">
+                            <div class="expense-row">
+                                <select class="expense-cat">
+                                    <option>🏠 Housing/Rent</option>
+                                    <option>🍔 Food & Groceries</option>
+                                    <option>🚗 Transport</option>
+                                    <option>💊 Healthcare</option>
+                                    <option>📱 Subscriptions</option>
+                                    <option>🎬 Entertainment</option>
+                                    <option>👔 Clothing</option>
+                                    <option>📚 Education</option>
+                                    <option>💳 Loan EMI</option>
+                                    <option>🔧 Utilities</option>
+                                    <option>Other</option>
+                                </select>
+                                <input type="number" class="expense-amt" placeholder="Amount (₹)">
+                                <button class="del-btn" onclick="removeExpense(this)">×</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button class="analyze-btn" onclick="analyzeBudget()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                            <path
+                                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                        </svg>
+                        Analyze My Budget
+                    </button>
+                </div>
+
+                <div class="card result-card" id="budgetResult" style="display:none">
+                    <div class="card-header">
+                        <h2>Budget Analysis</h2>
+                        <div id="healthBadge" class="health-badge"></div>
+                    </div>
+                    <div class="stat-row" id="budgetStats"></div>
+                    <div class="donut-wrap">
+                        <canvas id="donutChart" width="200" height="200"></canvas>
+                        <div class="donut-legend" id="donutLegend"></div>
+                    </div>
+                    <div class="analysis-text" id="analysisText"></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ TAB: RECOMMENDATIONS ============ -->
+        <section class="tab-panel" id="tab-recommend">
+            <div class="recommend-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h2>Smart Recommendations</h2>
+                        <p>Get AI-powered picks within your budget</p>
+                    </div>
+                    <div class="form-group">
+                        <label>What are you looking for?</label>
+                        <input type="text" id="recCategory" placeholder="e.g. Smartphone, Laptop, Gym membership..."
+                            class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Your Budget (₹)</label>
+                        <input type="number" id="recBudget" placeholder="e.g. 15000" class="form-input">
+                    </div>
+                    <div class="form-group">
+                        <label>Requirements / Preferences</label>
+                        <textarea id="recRequirements"
+                            placeholder="e.g. Need good camera, long battery life, for college use..."
+                            class="form-textarea" rows="3"></textarea>
+                    </div>
+                    <div class="category-tags">
+                        <span>Quick picks:</span>
+                        <button class="tag" onclick="setCategory('Smartphone')">📱 Phone</button>
+                        <button class="tag" onclick="setCategory('Laptop')">💻 Laptop</button>
+                        <button class="tag" onclick="setCategory('Headphones')">🎧 Headphones</button>
+                        <button class="tag" onclick="setCategory('Fitness equipment')">🏋️ Fitness</button>
+                        <button class="tag" onclick="setCategory('Online course')">📚 Courses</button>
+                    </div>
+                    <button class="analyze-btn" onclick="getRecommendations()">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                        Get Smart Recommendations
+                    </button>
+                </div>
+
+                <div class="card result-card" id="recResult" style="display:none">
+                    <div class="card-header">
+                        <h2>AI Recommendations</h2>
+                        <div class="rec-tag">Personalized for your budget</div>
+                    </div>
+                    <div class="rec-content" id="recContent"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script src="/static/js/main.js"></script>
+</body>
+
+</html>
