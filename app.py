@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 import json
 import os
@@ -70,12 +70,110 @@ def mock_response(messages):
     if not user_text:
         user_text = "Tell me how to improve my monthly budget."
 
+    text = user_text.lower()
+
+    def base_prefix():
+        return "Using free mock mode (no paid API).\n\n"
+
+    if "recommend" in text and "budget" in text:
+        category_match = re.search(
+            r"recommend the best\s+(.+?)\s+within a budget of rs\s+(\d+(?:\.\d+)?)",
+            text,
+            re.IGNORECASE,
+        )
+        req_match = re.search(r"requirements:\s*(.+?)\.\s*provide 3 options", user_text, re.IGNORECASE)
+
+        category = "product"
+        budget = 0.0
+        if category_match:
+            category = category_match.group(1).strip()
+            budget = clean_numeric(category_match.group(2))
+
+        requirements = "No specific requirements"
+        if req_match:
+            requirements = req_match.group(1).strip() or requirements
+
+        if budget <= 0:
+            budget = 10000.0
+
+        budget_tier = round(budget * 0.75, 2)
+        value_tier = round(budget * 0.95, 2)
+        premium_tier = round(budget * 1.1, 2)
+
+        return (
+            base_prefix()
+            + f"Top picks for **{category.title()}** (target budget: Rs {budget:.2f})\n\n"
+            + f"Needs considered: {requirements}\n\n"
+            + f"1. **Budget Option** - Around Rs {budget_tier:.2f}\n"
+            + "- Best for core features at lowest cost.\n"
+            + "- Prioritize reliability and warranty.\n\n"
+            + f"2. **Value Option** - Around Rs {value_tier:.2f}\n"
+            + "- Best balance of performance and price.\n"
+            + "- Good long-term daily-use choice.\n\n"
+            + f"3. **Premium Option** - Around Rs {premium_tier:.2f}\n"
+            + "- Better build, comfort, and extra features.\n"
+            + "- Choose if quality and longevity matter more than price.\n\n"
+            + "Tip: Compare return policy, warranty terms, and after-sales service before buying."
+        )
+
+    if any(word in text for word in ["hi", "hello", "hey"]):
+        return (
+            base_prefix()
+            + "Hi! I can help with budget planning, saving tips, debt payoff, and basic investment guidance.\n\n"
+            + "Try asking:\n"
+            + "1. \"Make a monthly budget for income 50000\"\n"
+            + "2. \"How do I reduce food and transport expenses?\"\n"
+            + "3. \"Where should a beginner invest each month?\""
+        )
+
+    if "budget" in text:
+        return (
+            base_prefix()
+            + "Budget plan you can start today:\n"
+            + "1. Needs: 50-60% of income (rent, food, bills).\n"
+            + "2. Wants: 20-30% (shopping, entertainment, eating out).\n"
+            + "3. Savings/Investments: at least 20% (auto-transfer on salary day).\n\n"
+            + "Weekly action: review top 3 categories and cut one by 10%."
+        )
+
+    if any(word in text for word in ["save", "saving", "savings"]):
+        return (
+            base_prefix()
+            + "Ways to save more this month:\n"
+            + "1. Set an automatic transfer right after salary credit.\n"
+            + "2. Use a strict weekly spending cap for non-essentials.\n"
+            + "3. Cancel/limit one recurring subscription.\n"
+            + "4. Keep a 24-hour wait rule before impulse purchases."
+        )
+
+    if any(word in text for word in ["invest", "investment", "mutual fund", "sip", "stock"]):
+        return (
+            base_prefix()
+            + "Beginner-friendly investment approach:\n"
+            + "1. Build emergency fund first (3-6 months expenses).\n"
+            + "2. Start monthly SIP in a broad index fund.\n"
+            + "3. Increase SIP amount when income increases.\n"
+            + "4. Review yearly, not daily."
+        )
+
+    if any(word in text for word in ["debt", "loan", "emi", "credit card"]):
+        return (
+            base_prefix()
+            + "Debt reduction strategy:\n"
+            + "1. Pay minimum on all debts.\n"
+            + "2. Put extra money toward highest-interest debt first.\n"
+            + "3. Avoid new debt while repaying.\n"
+            + "4. Automate payments to avoid penalties."
+        )
+
     return (
-        "Using free mock mode (no paid API).\n\n"
-        "1. Split spending into Needs, Wants, and Savings.\n"
-        "2. Keep savings transfer automatic on salary day.\n"
-        "3. Track top 3 expense categories weekly and reduce one by 10%.\n\n"
-        f"You asked: {user_text}\n"
+        base_prefix()
+        + "I understood your query and here is a practical plan:\n"
+        + "1. Define your monthly target (save more, reduce debt, or invest).\n"
+        + "2. Track current spending for 2 weeks.\n"
+        + "3. Cut one low-value category by 10-15%.\n"
+        + "4. Redirect that amount to savings/investments.\n\n"
+        + f"Your query: {user_text}"
     )
 
 
@@ -231,9 +329,9 @@ def analyze_budget():
 @app.route("/recommend", methods=["POST"])
 def recommend():
     data = request.get_json() or {}
-    category = data.get("category", "General")
+    category = str(data.get("category", "General")).strip() or "General"
     budget = clean_numeric(data.get("budget", 0))
-    reqs = data.get("requirements", "None")
+    reqs = str(data.get("requirements", "")).strip() or "No specific requirements"
 
     prompt = (
         f"Recommend the best {category} within a budget of Rs {budget:.2f}. "
