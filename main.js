@@ -302,10 +302,13 @@ async function getRecommendations() {
             body: JSON.stringify({ category, budget, requirements })
         });
         const data = await res.json();
+        if (!res.ok || data.error || !data.recommendations) {
+            throw new Error(data.error || 'Invalid recommendation response');
+        }
 
         const result = document.getElementById('recResult');
         result.style.display = 'block';
-        document.getElementById('recContent').textContent = data.recommendations;
+        document.getElementById('recContent').innerHTML = formatMarkdown(data.recommendations);
         result.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (e) {
         alert('Error getting recommendations. Please try again.');
